@@ -1,32 +1,65 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, UserRole } from './user.entity';
 
-
 @Injectable()
 export class UsersService {
-constructor(@InjectRepository(User) private usersRepo: Repository<User>) {}
+  constructor(
+    @InjectRepository(User) private usersRepo: Repository<User>,
+  ) {}
 
+  /**
+   * Create new user
+   */
+  async create(
+    email: string,
+    password: string,
+    roles: UserRole[] = [UserRole.USER],
+    isEmailVerified = false,
+    verificationToken: string,
+  ): Promise<User> {
+    // const existing = await this.usersRepo.findOne({ where: { email } });
+    // if (existing) throw new ConflictException('Email already in use');
 
-async create(email: string, password: string, roles: UserRole[] = [UserRole.USER]) {
-const user = this.usersRepo.create({ email, password, roles });
-return this.usersRepo.save(user);
-}
+    const user = this.usersRepo.create({
+      email,
+      password,
+      roles,
+      isEmailVerified,
+      verificationToken,
+    });
 
+    return this.usersRepo.save(user);
+  }
 
-findByEmail(email: string) {
-return this.usersRepo.findOneBy({ email });
-}
+  async save(user: User): Promise<User> {
+    return this.usersRepo.save(user);
+  }
 
+  async findByEmail(email: string): Promise<User | null> {
+    return this.usersRepo.findOne({ where: { email } });
+  }
 
-findById(id: string) {
-return this.usersRepo.findOneBy({ id });
-}
+  async findById(id: string): Promise<User | null> {
+    return this.usersRepo.findOne({ where: { id } });
+  }
 
+  async findByVerificationToken(token: string): Promise<User | null> {
+    return this.usersRepo.findOne({ where: { verificationToken: token } });
+  }
 
-async updateProfile(id: string, patch: Partial<User>) {
-await this.usersRepo.update(id, patch);
-return this.findById(id);
-}
+  async updateProfile(id: string, updates: Partial<User>): Promise<User> {
+    const user = await this.findById(id);
+    if (!user) throw new NotFoundException('User not found');
+    Object.assign(user, updates);
+    return this.usersRepo.save(user);
+  }
+
+  async updateRole(id: string, role: string): Promise<User> {
+    const user = await this.findById(id);
+    if (!user) throw new NotFoundException('User not found');
+    user.roles = [role];
+    return this.usersRepo.save(user);
+  }
 }

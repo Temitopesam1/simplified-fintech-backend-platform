@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm
 
 
 export class CreateUsersAndKyc1680000000000 {
-public async up(queryRunner) {
+public async up(queryRunner: QueryRunner) {
 await queryRunner.createTable(
 new Table({
 name: 'users',
@@ -46,9 +46,9 @@ onDelete: 'CASCADE',
 }
 
 
-public async down(queryRunner) {
+public async down(queryRunner: QueryRunner) {
 const table = await queryRunner.getTable('kyc');
-const foreignKey = table.foreignKeys.find((fk) => fk.columnNames.indexOf('userId') !== -1);
+const foreignKey = table!.foreignKeys.find((fk) => fk.columnNames.indexOf('userId') !== -1);
 if (foreignKey) await queryRunner.dropForeignKey('kyc', foreignKey);
 await queryRunner.dropTable('kyc');
 await queryRunner.dropTable('users');

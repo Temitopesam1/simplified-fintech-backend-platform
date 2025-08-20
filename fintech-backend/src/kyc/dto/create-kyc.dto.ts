@@ -12,23 +12,23 @@ fullName!: string;
 @ApiProperty({ required: false })
 @IsOptional()
 @IsDateString()
-dob!: string;
+dob?: string;
 
 
 @ApiProperty({ required: false })
 @IsOptional()
 @IsString()
-address!: string;
+address?: string;
 
 
 @ApiProperty({ required: false })
 @IsOptional()
 @IsString()
-idType!: string;
+idType?: string;
 
 
 @ApiProperty({ required: false })
 @IsOptional()
 @IsString()
-idNumber!: string;
+idNumber?: string;
 }

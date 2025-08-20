@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Req, UseGuards, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
@@ -6,6 +6,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
 import { UsersService } from '../users/users.service';
+import { RefreshDto } from './dto/refresh.dto';
 
 
 @ApiTags('auth')
@@ -20,6 +21,12 @@ return this.authService.register(body.email, body.password);
 }
 
 
+@Get('verify')
+async verify(@Query('token') token: string) {
+return this.authService.verifyEmail(token);
+}
+
+
 @Post('login')
 async login(@Body() body: LoginDto) {
 return this.authService.login(body.email, body.password);
@@ -27,8 +34,8 @@ return this.authService.login(body.email, body.password);
 
 
 @Post('refresh')
-async refresh(@Body('token') token: string) {
-return this.authService.refresh(token);
+async refresh(@Body() body: RefreshDto) {
+return this.authService.refresh(body.token);
 }
 
 
