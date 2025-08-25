@@ -56,18 +56,20 @@ return user;
 
 
 async login(email: string, password: string) {
-const user = await this.validateUser(email, password);
+  const user = await this.validateUser(email, password);
 
+  const refreshToken = uuidv4();
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-const refreshToken = uuidv4();
-const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  const rt = this.refreshRepo.create({ token: refreshToken, userId: user.id, expiresAt });
+  await this.refreshRepo.save(rt);
 
-
-const rt = this.refreshRepo.create({ token: refreshToken, userId: user.id, expiresAt });
-await this.refreshRepo.save(rt);
-
-
+  return {
+    ...this.buildAuthPayload(user, true),
+    refreshToken,
+  };
 }
+
 
 buildAuthPayload(user: User, includeAccess = true) {
 const payload = { sub: user.id, email: user.email, roles: user.roles };

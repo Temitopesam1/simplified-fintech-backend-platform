@@ -2,6 +2,7 @@
 import { DataSource } from 'typeorm';
 import { User } from './users/user.entity';
 import { Kyc } from './kyc/kyc.entity';
+import { RefreshToken } from './auth/refresh-token.entity';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -15,6 +16,6 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: true, // never use true in production
   logging: true,
-  entities: [User, Kyc],
+  entities: [User, Kyc, RefreshToken],
   migrations: ['fintech/migrations/*.ts'],
 });
